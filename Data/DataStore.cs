@@ -71,6 +71,11 @@ namespace EmployeeMgmt.Data
             return LeaveRequests.Find(leave => leave.Id==Id);
         }
 
+        public List<LeaveRequest> GetLeaveByEmpId(int Id)
+        {
+            return LeaveRequests.FindAll(leave => leave.EmployeeID == Id);
+        }
+
         public void ApproveLeave(int id)
         {
             var leave =GetLeaveById(id);

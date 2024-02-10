@@ -56,7 +56,14 @@ namespace EmployeeMgmt.Controllers
         [Route("{id}")]
         [Authorize]
         public IActionResult GetEmployeeById(int id) {
-            var emp= _DataStore.GetByEmployeeId(id);
+
+            var UserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var UserId = Convert.ToInt32(UserIdClaim.Value);
+            if (UserId != id)
+            {
+                return Unauthorized();
+            }
+            var emp = _DataStore.GetByEmployeeId(id);
             return Ok(emp);
         }
 
@@ -87,14 +94,19 @@ namespace EmployeeMgmt.Controllers
         [Authorize]
         public IActionResult showleaves()
         {
+            List<LeaveRequest> leaves=new List<LeaveRequest>();
             var UserRoleClaim = User.FindFirst(ClaimTypes.Role);
-            if (UserRoleClaim.Value == "Employee") {
-                var UserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                
+            var UserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var UserId = Convert.ToInt32(UserIdClaim.Value);
+            if (UserRoleClaim?.Value == "Employee") {
 
+                leaves = _DataStore.GetLeaveByEmpId(UserId);
             }
-
-            var leaves = _DataStore.GetAllLeaves();
+            else if(UserRoleClaim?.Value == "Manager")
+            {
+                leaves = _DataStore.GetAllLeaves();
+            }
+            
             return Ok(leaves);
         }
 
